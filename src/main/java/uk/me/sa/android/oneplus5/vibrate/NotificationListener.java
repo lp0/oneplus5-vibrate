@@ -1,7 +1,7 @@
 /*
 	oneplus5-vibrate - Android OnePlus 5 Vibrate Service
 
-	Copyright 2017  Simon Arlott
+	Copyright 2017-2018  Simon Arlott
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 package uk.me.sa.android.oneplus5.vibrate;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,14 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.provider.Settings;
 import android.service.notification.NotificationListenerService;
+import uk.me.sa.android.oneplus5.vibrate.ui.VibrateOnlyNotification;
 
 @EService
 public class NotificationListener extends NotificationListenerService {
 	private static final Logger log = LoggerFactory.getLogger(NotificationListener.class);
+
+	@Bean
+	VibrateOnlyNotification notification;
 
 	private AudioManager audioManager;
 	private ContentObserver contentObserver = new ContentObserver(new Handler()) {
@@ -53,6 +58,8 @@ public class NotificationListener extends NotificationListenerService {
 			log.debug("Volume is {}; Ringer mode is {}", volume, ringerMode);
 			if (volume == 1 && ringerMode != AudioManager.RINGER_MODE_VIBRATE) {
 				setVibrateMode();
+			} else {
+				notification.setState(ringerMode == AudioManager.RINGER_MODE_VIBRATE);
 			}
 		}
 
@@ -75,6 +82,7 @@ public class NotificationListener extends NotificationListenerService {
 			return;
 		log.info("Setting ringer mode to vibrate");
 		audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+		notification.setState(true);
 		if (interruptionFilter == INTERRUPTION_FILTER_PRIORITY) {
 			log.info("Restoring interruption filter to priority");
 			requestInterruptionFilter(interruptionFilter);

@@ -1,7 +1,7 @@
 /*
 	oneplus5-vibrate - Android OnePlus 5 Vibrate Service
 
-	Copyright 2017  Simon Arlott
+	Copyright 2017-2018  Simon Arlott
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ public class TestNotificationListener {
 		ShadowPowerManager.reset();
 		sharedPreferences = ShadowPreferenceManager.getDefaultSharedPreferences(Robolectric.application.getApplicationContext());
 		controller = Robolectric.buildService(NotificationListener_.class);
-		service = PowerMockito.spy(controller.create().bind().get());
+		service = PowerMockito.spy(controller.attach().create().bind().get());
 	}
 
 	@Test

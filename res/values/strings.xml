@@ -2,7 +2,7 @@
 <!--
 	oneplus5-vibrate - Android OnePlus 5 Vibrate Service
 
-	Copyright 2017  Simon Arlott
+	Copyright 2017-2018  Simon Arlott
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,4 +20,5 @@
 <resources>
     <string name="app_name">Vibrate</string>
     <string name="menu_access">Notification Access</string>
+    <string name="vibrate_only">Ringer mode set to vibrate only</string>
 </resources>
