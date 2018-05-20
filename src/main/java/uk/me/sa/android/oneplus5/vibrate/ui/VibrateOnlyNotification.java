@@ -41,13 +41,20 @@ public class VibrateOnlyNotification {
 	@SystemService
 	NotificationManager notificationManager;
 
+	boolean vibrateOnly;
+
 	@AfterInject
 	public void onStart() {
 		log.debug("Clearing all notifications");
+		vibrateOnly = false;
 		notificationManager.cancelAll();
 	}
 
 	public synchronized void setState(boolean vibrateOnly) {
+		if (vibrateOnly == this.vibrateOnly) {
+			return;
+		}
+
 		if (vibrateOnly) {
 			log.debug("Adding notification");
 			Notification notification = new NotificationCompat.Builder(context).setContentTitle(context.getResources().getString(R.string.vibrate_only))
@@ -58,5 +65,7 @@ public class VibrateOnlyNotification {
 			log.debug("Removing notification");
 			notificationManager.cancelAll();
 		}
+
+		this.vibrateOnly = vibrateOnly;
 	}
 }

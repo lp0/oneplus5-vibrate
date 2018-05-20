@@ -38,6 +38,8 @@ public class NotificationListener extends NotificationListenerService {
 	@Bean
 	VibrateOnlyNotification notification;
 
+	boolean vibrateMode;
+
 	private AudioManager audioManager;
 	private ContentObserver contentObserver = new ContentObserver(new Handler()) {
 
@@ -52,15 +54,18 @@ public class NotificationListener extends NotificationListenerService {
 			int ringerMode = audioManager.getRingerMode();
 
 			// Silent: Volume 0 and mode 0 (silent)
-			// Priority: Volume 1 and mode 0 (silent)
+			// Priority: Volume 1 and mode 0 (silent, overrides report of vibrate status)
 			// Normal: Volume 1 and mode 2 (ring)
 
 			log.debug("Volume is {}; Ringer mode is {}", volume, ringerMode);
 			if (volume == 1 && ringerMode != AudioManager.RINGER_MODE_VIBRATE) {
 				setVibrateMode();
-			} else {
-				notification.setState(ringerMode == AudioManager.RINGER_MODE_VIBRATE);
+			} else if (vibrateMode && volume > 1) {
+				log.info("Ringer mode is no longer set to vibrate");
+				vibrateMode = false;
 			}
+
+			notification.setState(vibrateMode);
 		}
 
 	};
@@ -69,6 +74,7 @@ public class NotificationListener extends NotificationListenerService {
 	public void onCreate() {
 		audioManager = (AudioManager)getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
 		getApplicationContext().getContentResolver().registerContentObserver(Settings.System.CONTENT_URI, true, contentObserver);
+		vibrateMode = false;
 	}
 
 	@Override
@@ -82,7 +88,7 @@ public class NotificationListener extends NotificationListenerService {
 			return;
 		log.info("Setting ringer mode to vibrate");
 		audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
-		notification.setState(true);
+		vibrateMode = true;
 		if (interruptionFilter == INTERRUPTION_FILTER_PRIORITY) {
 			log.info("Restoring interruption filter to priority");
 			requestInterruptionFilter(interruptionFilter);
